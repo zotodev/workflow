@@ -2,14 +2,9 @@ import { defineConfig } from "drizzle-kit"
 
 export default defineConfig({
   out: "./drizzle",
-  schema: "./src/server/db/schema/index.ts",
-  dialect: "postgresql",
-  casing: "snake_case",
+  schema: "./src/db/schema.ts",
+  dialect: "turso",
   dbCredentials: {
-    url: process.env.DATABASE_URL!
+    url: "file:sqlite.db",
   },
-  schemaFilter: ["public", "auth"],
-  tablesFilter: ["*"],
-  verbose: true,
-  strict: true
 })

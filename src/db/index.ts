@@ -1,11 +1,10 @@
-import { drizzle } from "drizzle-orm/node-postgres"
-import * as schema from "./schema/index.ts"
+import { createClient } from "@libsql/client"
+import { drizzle } from "drizzle-orm/libsql"
+import * as schema from "./schema"
 
-export const db = drizzle({
-  connection: process.env.DATABASE_URL!,
-  casing: "snake_case",
-  schema
-})
+const client = createClient({ url: "file:sqlite.db" })
+
+export const db = drizzle(client, { schema })
 
 export type Database = typeof db
 
