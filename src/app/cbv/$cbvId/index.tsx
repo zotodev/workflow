@@ -14,14 +14,14 @@ import {
   StepperNav,
   StepperSeparator,
   StepperTitle,
-  StepperTrigger,
+  StepperTrigger
 } from "@/components/ui/stepper"
 import { SubmitButton } from "@/components/ui/submit-button"
 import { deleteCbv, getCbvById, updateCbvStage } from "@/db/functions"
 import { type cbvStageEnum } from "@/db/schema"
 
 export const Route = createFileRoute("/cbv/$cbvId/")({
-  component: RouteComponent,
+  component: RouteComponent
 })
 
 // ── Stage definitions ──────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ const CBV_STAGES: { step: number; key: StageKey; label: string }[] = [
   { step: 2, key: "Initiation", label: "Initiation" },
   { step: 3, key: "Verification", label: "Verification" },
   { step: 4, key: "Authorization", label: "Authorization" },
-  { step: 5, key: "Submit", label: "Submit" },
+  { step: 5, key: "Submit", label: "Submit" }
 ]
 
 function stageIndex(key: StageKey): number {
@@ -45,13 +45,12 @@ function stageIndex(key: StageKey): number {
 
 function InitiationForm({ cbvId, onSaved }: { cbvId: string; onSaved: () => void }) {
   const mutation = useMutation({
-    mutationFn: () =>
-      updateCbvStage({ data: { id: cbvId, nextStage: "Verification" } }),
+    mutationFn: () => updateCbvStage({ data: { id: cbvId, nextStage: "Verification" } }),
     onSuccess: () => {
       toast.success("Initiation stage completed")
       onSaved()
     },
-    onError: () => toast.error("Failed to save"),
+    onError: () => toast.error("Failed to save")
   })
 
   return (
@@ -76,7 +75,7 @@ function InitiationForm({ cbvId, onSaved }: { cbvId: string; onSaved: () => void
 
 const verificationSchema = z.object({
   reviewer: z.string().min(1, "Reviewer name is required"),
-  reviewerComments: z.string().optional(),
+  reviewerComments: z.string().optional()
 })
 
 type VerificationFormValues = z.infer<typeof verificationSchema>
@@ -84,7 +83,7 @@ type VerificationFormValues = z.infer<typeof verificationSchema>
 function VerificationForm({
   cbvId,
   defaults,
-  onSaved,
+  onSaved
 }: {
   cbvId: string
   defaults: { reviewer: string | null; reviewerComments: string | null }
@@ -94,8 +93,8 @@ function VerificationForm({
     resolver: zodResolver(verificationSchema),
     defaultValues: {
       reviewer: defaults.reviewer ?? "",
-      reviewerComments: defaults.reviewerComments ?? "",
-    },
+      reviewerComments: defaults.reviewerComments ?? ""
+    }
   })
 
   const mutation = useMutation({
@@ -105,21 +104,19 @@ function VerificationForm({
           id: cbvId,
           nextStage: "Authorization",
           reviewer: values.reviewer,
-          reviewerComments: values.reviewerComments,
-        },
+          reviewerComments: values.reviewerComments
+        }
       }),
     onSuccess: () => {
       toast.success("Verification stage completed")
       onSaved()
     },
-    onError: () => toast.error("Failed to save"),
+    onError: () => toast.error("Failed to save")
   })
 
   return (
     <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-5">
-      <p className="text-muted-foreground text-sm">
-        Verify the SSI details and provide reviewer sign-off.
-      </p>
+      <p className="text-muted-foreground text-sm">Verify the SSI details and provide reviewer sign-off.</p>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormInput name="reviewer" label="Reviewer Name" control={form.control} placeholder="Full name" />
         <div className="sm:col-span-2">
@@ -144,7 +141,7 @@ function VerificationForm({
 const authorizationSchema = z.object({
   authorizer: z.string().min(1, "Authorizer name is required"),
   authorizerComments: z.string().optional(),
-  authorizerSignoff: z.boolean().refine(Boolean, "Authorizer sign-off is required"),
+  authorizerSignoff: z.boolean().refine(Boolean, "Authorizer sign-off is required")
 })
 
 type AuthorizationFormValues = z.infer<typeof authorizationSchema>
@@ -152,7 +149,7 @@ type AuthorizationFormValues = z.infer<typeof authorizationSchema>
 function AuthorizationForm({
   cbvId,
   defaults,
-  onSaved,
+  onSaved
 }: {
   cbvId: string
   defaults: {
@@ -167,8 +164,8 @@ function AuthorizationForm({
     defaultValues: {
       authorizer: defaults.authorizer ?? "",
       authorizerComments: defaults.authorizerComments ?? "",
-      authorizerSignoff: defaults.authorizerSignoff ?? false,
-    },
+      authorizerSignoff: defaults.authorizerSignoff ?? false
+    }
   })
 
   const mutation = useMutation({
@@ -179,14 +176,14 @@ function AuthorizationForm({
           nextStage: "Submit",
           authorizer: values.authorizer,
           authorizerComments: values.authorizerComments,
-          authorizerSignoff: values.authorizerSignoff,
-        },
+          authorizerSignoff: values.authorizerSignoff
+        }
       }),
     onSuccess: () => {
       toast.success("Authorization stage completed")
       onSaved()
     },
-    onError: () => toast.error("Failed to save"),
+    onError: () => toast.error("Failed to save")
   })
 
   return (
@@ -222,14 +219,14 @@ const priorityColors: Record<string, string> = {
   LOW: "bg-blue-100 text-blue-700",
   MEDIUM: "bg-yellow-100 text-yellow-700",
   HIGH: "bg-orange-100 text-orange-700",
-  CRITICAL: "bg-red-100 text-red-700",
+  CRITICAL: "bg-red-100 text-red-700"
 }
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
-      <div className="text-sm font-medium">{value ?? <span className="text-muted-foreground">—</span>}</div>
+      <p className="mb-1 font-medium text-muted-foreground text-xs uppercase tracking-wide">{label}</p>
+      <div className="font-medium text-sm">{value ?? <span className="text-muted-foreground">—</span>}</div>
     </div>
   )
 }
@@ -239,12 +236,10 @@ type CbvRecord = NonNullable<Awaited<ReturnType<typeof getCbvById>>>
 function SubmitStage({ cbvData }: { cbvData: CbvRecord }) {
   return (
     <div className="space-y-6">
-      <p className="text-muted-foreground text-sm">
-        This CBV has been fully processed. Below is the complete record.
-      </p>
-      <div className="rounded-lg border divide-y">
+      <p className="text-muted-foreground text-sm">This CBV has been fully processed. Below is the complete record.</p>
+      <div className="divide-y rounded-lg border">
         <div className="p-4">
-          <h3 className="font-semibold text-sm mb-4">Request Details</h3>
+          <h3 className="mb-4 font-semibold text-sm">Request Details</h3>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <Field label="Region" value={cbvData.region} />
             <Field label="Product Type" value={cbvData.productType} />
@@ -254,7 +249,9 @@ function SubmitStage({ cbvData }: { cbvData: CbvRecord }) {
             <Field
               label="Priority"
               value={
-                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${priorityColors[cbvData.priority] ?? ""}`}>
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${priorityColors[cbvData.priority] ?? ""}`}
+                >
                   {cbvData.priority}
                 </span>
               }
@@ -262,7 +259,7 @@ function SubmitStage({ cbvData }: { cbvData: CbvRecord }) {
           </div>
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-sm mb-4">Review & Authorization</h3>
+          <h3 className="mb-4 font-semibold text-sm">Review & Authorization</h3>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <Field label="Reviewer" value={cbvData.reviewer} />
             <Field label="Reviewer Comments" value={cbvData.reviewerComments} />
@@ -272,7 +269,7 @@ function SubmitStage({ cbvData }: { cbvData: CbvRecord }) {
               label="Authorizer Sign-off"
               value={
                 cbvData.authorizerSignoff ? (
-                  <span className="text-green-600 font-medium">Yes</span>
+                  <span className="font-medium text-green-600">Yes</span>
                 ) : (
                   <span className="text-muted-foreground">Pending</span>
                 )
@@ -294,7 +291,7 @@ function RouteComponent() {
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["cbv", cbvId],
-    queryFn: () => getCbvById({ data: { id: cbvId } }),
+    queryFn: () => getCbvById({ data: { id: cbvId } })
   })
 
   const deleteMutation = useMutation({
@@ -304,7 +301,7 @@ function RouteComponent() {
       toast.success(`${cbvId} deleted`)
       navigate({ to: "/" })
     },
-    onError: () => toast.error("Failed to delete CBV"),
+    onError: () => toast.error("Failed to delete CBV")
   })
 
   const handleStageSaved = () => {
@@ -340,7 +337,7 @@ function RouteComponent() {
             defaults={{
               authorizer: data.authorizer,
               authorizerComments: data.authorizerComments,
-              authorizerSignoff: data.authorizerSignoff,
+              authorizerSignoff: data.authorizerSignoff
             }}
             onSaved={handleStageSaved}
           />
@@ -366,7 +363,7 @@ function RouteComponent() {
             CBV Requests
           </Button>
           <span className="text-muted-foreground/40">/</span>
-          <span className="font-mono font-medium text-sm">{cbvId}</span>
+          <span className="font-medium font-mono text-sm">{cbvId}</span>
         </div>
         {data && (
           <Button
@@ -376,11 +373,7 @@ function RouteComponent() {
             disabled={deleteMutation.isPending}
             onClick={() => deleteMutation.mutate()}
           >
-            {deleteMutation.isPending ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Trash2 className="size-3.5" />
-            )}
+            {deleteMutation.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
             Delete
           </Button>
         )}
@@ -391,7 +384,7 @@ function RouteComponent() {
           {isPending && (
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
+                <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />
               ))}
             </div>
           )}
@@ -403,7 +396,7 @@ function RouteComponent() {
           )}
 
           {data === null && !isPending && (
-            <div className="text-center py-16 text-muted-foreground text-sm">
+            <div className="py-16 text-center text-muted-foreground text-sm">
               CBV record <span className="font-mono">{cbvId}</span> not found.
             </div>
           )}
@@ -430,7 +423,7 @@ function RouteComponent() {
                           <StepperTitle>{def.label}</StepperTitle>
                         </StepperTrigger>
                         {i < CBV_STAGES.length - 1 && (
-                          <StepperSeparator className="group-data-[state=completed]/step:bg-primary absolute inset-x-0 top-3 left-[calc(50%+0.875rem)] m-0 group-data-[orientation=horizontal]/stepper-nav:w-[calc(100%-2rem+0.225rem)] group-data-[orientation=horizontal]/stepper-nav:flex-none" />
+                          <StepperSeparator className="absolute inset-x-0 top-3 left-[calc(50%+0.875rem)] m-0 group-data-[orientation=horizontal]/stepper-nav:w-[calc(100%-2rem+0.225rem)] group-data-[orientation=horizontal]/stepper-nav:flex-none group-data-[state=completed]/step:bg-primary" />
                         )}
                       </StepperItem>
                     )
@@ -440,10 +433,8 @@ function RouteComponent() {
 
               <section className="space-y-6">
                 <div className="space-y-1 border-b pb-4">
-                  <h2 className="font-semibold text-lg tracking-tight">
-                    {CBV_STAGES[currentStageIdx]?.label}
-                  </h2>
-                  <p className="text-muted-foreground text-xs font-mono">{cbvId}</p>
+                  <h2 className="font-semibold text-lg tracking-tight">{CBV_STAGES[currentStageIdx]?.label}</h2>
+                  <p className="font-mono text-muted-foreground text-xs">{cbvId}</p>
                 </div>
                 {renderStageForm()}
               </section>

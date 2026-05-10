@@ -12,7 +12,7 @@ import { createCbv } from "@/db/functions"
 import { buMailboxEnum, priorityEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
 
 export const Route = createFileRoute("/new/")({
-  component: RouteComponent,
+  component: RouteComponent
 })
 
 const validationSchema = z.object({
@@ -21,7 +21,7 @@ const validationSchema = z.object({
   buMailbox: z.enum(buMailboxEnum, { required_error: "BU mailbox is required" }),
   priority: z.enum(priorityEnum, { required_error: "Priority is required" }),
   requestMode: z.enum(requestModeEnum, { required_error: "Request mode is required" }),
-  cbvRequestedBy: z.string().min(1, "Requester name is required"),
+  cbvRequestedBy: z.string().min(1, "Requester name is required")
 })
 
 type ValidationForm = z.infer<typeof validationSchema>
@@ -37,8 +37,8 @@ function RouteComponent() {
       buMailbox: undefined,
       priority: undefined,
       requestMode: undefined,
-      cbvRequestedBy: "",
-    },
+      cbvRequestedBy: ""
+    }
   })
 
   const mutation = useMutation({
@@ -47,7 +47,7 @@ function RouteComponent() {
       toast.success(`${row?.id} created`)
       navigate({ to: "/cbv/$cbvId", params: { cbvId: row!.id } })
     },
-    onError: () => toast.error("Failed to create CBV"),
+    onError: () => toast.error("Failed to create CBV")
   })
 
   return (
@@ -56,7 +56,7 @@ function RouteComponent() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+            className="text-muted-foreground text-sm transition-colors hover:text-foreground"
             onClick={() => navigate({ to: "/" })}
           >
             ← CBV Requests
@@ -69,7 +69,7 @@ function RouteComponent() {
       <main className="flex flex-1 flex-col overflow-y-auto p-4 md:p-8">
         <div className="mx-auto w-full max-w-2xl space-y-6">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Validation</h1>
+            <h1 className="font-semibold text-xl tracking-tight">Validation</h1>
             <p className="text-muted-foreground text-sm">
               Provide the core request details to create a new CBV record.
             </p>
@@ -79,31 +79,41 @@ function RouteComponent() {
             <div className="grid gap-4 sm:grid-cols-2">
               <FormSelect name="region" label="Region" control={form.control}>
                 {regionEnum.map((v) => (
-                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
                 ))}
               </FormSelect>
 
               <FormSelect name="productType" label="Product Type" control={form.control}>
                 {productTypeEnum.map((v) => (
-                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
                 ))}
               </FormSelect>
 
               <FormSelect name="buMailbox" label="BU Mailbox" control={form.control}>
                 {buMailboxEnum.map((v) => (
-                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
                 ))}
               </FormSelect>
 
               <FormSelect name="priority" label="Priority" control={form.control}>
                 {priorityEnum.map((v) => (
-                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
                 ))}
               </FormSelect>
 
               <FormSelect name="requestMode" label="Request Mode" control={form.control}>
                 {requestModeEnum.map((v) => (
-                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
                 ))}
               </FormSelect>
 
@@ -114,9 +124,7 @@ function RouteComponent() {
               <Button type="button" variant="ghost" onClick={() => navigate({ to: "/" })}>
                 Cancel
               </Button>
-              <SubmitButton isSubmitting={mutation.isPending}>
-                Create and continue
-              </SubmitButton>
+              <SubmitButton isSubmitting={mutation.isPending}>Create and continue</SubmitButton>
             </div>
           </form>
         </div>

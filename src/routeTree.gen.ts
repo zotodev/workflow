@@ -10,18 +10,12 @@
 
 import { Route as rootRouteImport } from "./app/__root"
 import { Route as IndexRouteImport } from "./app/index"
-import { Route as WorkflowIndexRouteImport } from "./app/workflow/index"
 import { Route as NewIndexRouteImport } from "./app/new/index"
 import { Route as CbvCbvIdIndexRouteImport } from "./app/cbv/$cbvId/index"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WorkflowIndexRoute = WorkflowIndexRouteImport.update({
-  id: "/workflow/",
-  path: "/workflow/",
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewIndexRoute = NewIndexRouteImport.update({
@@ -38,34 +32,30 @@ const CbvCbvIdIndexRoute = CbvCbvIdIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/new/": typeof NewIndexRoute
-  "/workflow/": typeof WorkflowIndexRoute
   "/cbv/$cbvId/": typeof CbvCbvIdIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/new": typeof NewIndexRoute
-  "/workflow": typeof WorkflowIndexRoute
   "/cbv/$cbvId": typeof CbvCbvIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
   "/new/": typeof NewIndexRoute
-  "/workflow/": typeof WorkflowIndexRoute
   "/cbv/$cbvId/": typeof CbvCbvIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/new/" | "/workflow/" | "/cbv/$cbvId/"
+  fullPaths: "/" | "/new/" | "/cbv/$cbvId/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/new" | "/workflow" | "/cbv/$cbvId"
-  id: "__root__" | "/" | "/new/" | "/workflow/" | "/cbv/$cbvId/"
+  to: "/" | "/new" | "/cbv/$cbvId"
+  id: "__root__" | "/" | "/new/" | "/cbv/$cbvId/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   NewIndexRoute: typeof NewIndexRoute
-  WorkflowIndexRoute: typeof WorkflowIndexRoute
   CbvCbvIdIndexRoute: typeof CbvCbvIdIndexRoute
 }
 
@@ -76,13 +66,6 @@ declare module "@tanstack/react-router" {
       path: "/"
       fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/workflow/": {
-      id: "/workflow/"
-      path: "/workflow"
-      fullPath: "/workflow/"
-      preLoaderRoute: typeof WorkflowIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/new/": {
@@ -105,7 +88,6 @@ declare module "@tanstack/react-router" {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   NewIndexRoute: NewIndexRoute,
-  WorkflowIndexRoute: WorkflowIndexRoute,
   CbvCbvIdIndexRoute: CbvCbvIdIndexRoute,
 }
 export const routeTree = rootRouteImport
