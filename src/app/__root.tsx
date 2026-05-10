@@ -6,14 +6,12 @@ import * as React from "react"
 import GlobalErrorComponent from "@/components/global-error"
 import NotFoundComponent from "@/components/not-found"
 import Providers from "@/components/providers"
-import type { orpc } from "@/lib/orpc"
 import { cn } from "@/lib/utils"
 import { seo } from "@/utils/seo"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
-  orpc: typeof orpc
 }>()({
   // server: {
   //   middleware: [requestLoggerMiddleware]

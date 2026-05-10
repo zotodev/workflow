@@ -4,7 +4,6 @@ import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query
 import GlobalErrorComponent from "./components/global-error"
 import { LoadingScreen } from "./components/loading-screen"
 import NotFoundComponent from "./components/not-found"
-import { orpc } from "./lib/orpc"
 import { routeTree } from "./routeTree.gen"
 
 export function getRouter() {
@@ -34,7 +33,6 @@ export function getRouter() {
   const router = createRouter({
     routeTree,
     context: {
-      orpc,
       queryClient
     },
     defaultPreload: "intent",
