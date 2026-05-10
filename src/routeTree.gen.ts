@@ -10,17 +10,11 @@
 
 import { Route as rootRouteImport } from "./app/__root"
 import { Route as IndexRouteImport } from "./app/index"
-import { Route as NewIndexRouteImport } from "./app/new/index"
 import { Route as CbvCbvIdIndexRouteImport } from "./app/cbv/$cbvId/index"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NewIndexRoute = NewIndexRouteImport.update({
-  id: "/new/",
-  path: "/new/",
   getParentRoute: () => rootRouteImport,
 } as any)
 const CbvCbvIdIndexRoute = CbvCbvIdIndexRouteImport.update({
@@ -31,31 +25,27 @@ const CbvCbvIdIndexRoute = CbvCbvIdIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
-  "/new/": typeof NewIndexRoute
   "/cbv/$cbvId/": typeof CbvCbvIdIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
-  "/new": typeof NewIndexRoute
   "/cbv/$cbvId": typeof CbvCbvIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
-  "/new/": typeof NewIndexRoute
   "/cbv/$cbvId/": typeof CbvCbvIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/new/" | "/cbv/$cbvId/"
+  fullPaths: "/" | "/cbv/$cbvId/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/new" | "/cbv/$cbvId"
-  id: "__root__" | "/" | "/new/" | "/cbv/$cbvId/"
+  to: "/" | "/cbv/$cbvId"
+  id: "__root__" | "/" | "/cbv/$cbvId/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  NewIndexRoute: typeof NewIndexRoute
   CbvCbvIdIndexRoute: typeof CbvCbvIdIndexRoute
 }
 
@@ -66,13 +56,6 @@ declare module "@tanstack/react-router" {
       path: "/"
       fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/new/": {
-      id: "/new/"
-      path: "/new"
-      fullPath: "/new/"
-      preLoaderRoute: typeof NewIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/cbv/$cbvId/": {
@@ -87,7 +70,6 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  NewIndexRoute: NewIndexRoute,
   CbvCbvIdIndexRoute: CbvCbvIdIndexRoute,
 }
 export const routeTree = rootRouteImport

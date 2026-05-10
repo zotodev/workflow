@@ -43,7 +43,7 @@ function RouteComponent() {
   })
 
   const createMutation = useMutation({
-    mutationFn: () => createCbv({ data: {} }),
+    mutationFn: () => createCbv(),
     onSuccess: (row) => {
       queryClient.invalidateQueries({ queryKey: ["cbv"] })
       toast.success(`${row?.id} created`)

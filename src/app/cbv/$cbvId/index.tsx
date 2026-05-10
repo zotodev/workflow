@@ -38,17 +38,20 @@ function RouteComponent() {
   if (!cbv) return <p className="p-6 text-destructive">CBV not found: {cbvId}</p>
 
   return (
-    <div className="w-full">
-      <PageHeader label={cbvId} description="CBV" showBackButton onBackClick={() => navigate({ to: "/" })}>
+    <div className="flex h-full w-full flex-col">
+      <PageHeader
+        label={cbvId.toUpperCase()}
+        description="CBV"
+        showBackButton
+        onBackClick={() => navigate({ to: "/" })}
+      >
         <Badge variant="secondary" className="px-3 py-1 font-medium">
-          Current stage: {cbv.currentStage}
+          {cbv.currentStage}
         </Badge>
       </PageHeader>
 
       <main className="w-full space-y-6 p-6">
-        <section className="rounded-xl border bg-background p-4 shadow-sm sm:p-5">
-          <CbvStepper cbv={cbv} />
-        </section>
+        <CbvStepper cbv={cbv} />
 
         <Card className="w-full shadow-sm">
           <CardHeader className="border-b pb-4">

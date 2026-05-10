@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 import { desc, eq } from "drizzle-orm"
 import { z } from "zod"
 import { db } from "@/db/index"
-import { buMailboxEnum, cbv, cbvStageEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
+import { buMailboxEnum, cbv, cbvStageEnum, priorityEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
 import { nextCbvId } from "@/lib/cbv-id"
 
 export const getCbvList = createServerFn().handler(async () => {
@@ -24,7 +24,6 @@ export const deleteCbv = createServerFn({ method: "POST" })
   })
 
 export const createCbv = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({}).optional().parse(input))
   .handler(async () => {
     const id = await nextCbvId()
     const [row] = await db
@@ -37,7 +36,7 @@ export const createCbv = createServerFn({ method: "POST" })
         priority: "MEDIUM",
         requestMode: requestModeEnum[0],
         cbvRequestedBy: "Unassigned",
-        currentStage: "Initiation"
+        currentStage: "Validation"
       })
       .returning()
     return row
@@ -46,6 +45,12 @@ export const createCbv = createServerFn({ method: "POST" })
 const updateCbvStageSchema = z.object({
   id: z.string(),
   nextStage: z.enum(cbvStageEnum),
+  region: z.enum(regionEnum).optional(),
+  productType: z.enum(productTypeEnum).optional(),
+  buMailbox: z.enum(buMailboxEnum).optional(),
+  priority: z.enum(priorityEnum).optional(),
+  requestMode: z.enum(requestModeEnum).optional(),
+  cbvRequestedBy: z.string().optional(),
   reviewer: z.string().optional(),
   reviewerComments: z.string().optional(),
   authorizer: z.string().optional(),
@@ -58,11 +63,13 @@ export const updateCbvStage = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { id, nextStage, ...fields } = data
     const updateData: Record<string, unknown> = { currentStage: nextStage }
-    if (fields.reviewer !== undefined) updateData.reviewer = fields.reviewer
-    if (fields.reviewerComments !== undefined) updateData.reviewerComments = fields.reviewerComments
-    if (fields.authorizer !== undefined) updateData.authorizer = fields.authorizer
-    if (fields.authorizerComments !== undefined) updateData.authorizerComments = fields.authorizerComments
-    if (fields.authorizerSignoff !== undefined) updateData.authorizerSignoff = fields.authorizerSignoff
+    const keys = [
+      "region", "productType", "buMailbox", "priority", "requestMode", "cbvRequestedBy",
+      "reviewer", "reviewerComments", "authorizer", "authorizerComments", "authorizerSignoff"
+    ] as const
+    for (const key of keys) {
+      if (fields[key] !== undefined) updateData[key] = fields[key]
+    }
     const [row] = await db.update(cbv).set(updateData).where(eq(cbv.id, id)).returning()
     return row
   })
