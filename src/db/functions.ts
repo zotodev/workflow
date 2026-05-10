@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start"
 import { desc, eq } from "drizzle-orm"
 import { z } from "zod"
-import { nextCbvId } from "@/lib/cbv-id"
-import { db } from "./index"
+import { db } from "@/db/index"
 import {
   buMailboxEnum,
   cbv,
@@ -10,8 +9,9 @@ import {
   priorityEnum,
   productTypeEnum,
   regionEnum,
-  requestModeEnum,
-} from "./schema"
+  requestModeEnum
+} from "@/db/schema"
+import { nextCbvId } from "@/lib/cbv-id"
 
 export const getCbvList = createServerFn().handler(async () => {
   return await db.select().from(cbv).orderBy(desc(cbv.cbvDateTime))
@@ -37,7 +37,7 @@ const createCbvSchema = z.object({
   buMailbox: z.enum(buMailboxEnum),
   priority: z.enum(priorityEnum),
   requestMode: z.enum(requestModeEnum),
-  cbvRequestedBy: z.string().min(1),
+  cbvRequestedBy: z.string().min(1)
 })
 
 export const createCbv = createServerFn({ method: "POST" })
@@ -54,7 +54,7 @@ export const createCbv = createServerFn({ method: "POST" })
         priority: data.priority,
         requestMode: data.requestMode,
         cbvRequestedBy: data.cbvRequestedBy,
-        currentStage: "Initiation",
+        currentStage: "Initiation"
       })
       .returning()
     return row
@@ -67,21 +67,19 @@ const updateCbvStageSchema = z.object({
   reviewerComments: z.string().optional(),
   authorizer: z.string().optional(),
   authorizerComments: z.string().optional(),
-  authorizerSignoff: z.boolean().optional(),
+  authorizerSignoff: z.boolean().optional()
 })
 
 export const updateCbvStage = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => updateCbvStageSchema.parse(input))
   .handler(async ({ data }) => {
     const { id, nextStage, ...fields } = data
-
     const updateData: Record<string, unknown> = { currentStage: nextStage }
     if (fields.reviewer !== undefined) updateData.reviewer = fields.reviewer
     if (fields.reviewerComments !== undefined) updateData.reviewerComments = fields.reviewerComments
     if (fields.authorizer !== undefined) updateData.authorizer = fields.authorizer
     if (fields.authorizerComments !== undefined) updateData.authorizerComments = fields.authorizerComments
     if (fields.authorizerSignoff !== undefined) updateData.authorizerSignoff = fields.authorizerSignoff
-
     const [row] = await db.update(cbv).set(updateData).where(eq(cbv.id, id)).returning()
     return row
   })

@@ -11,11 +11,9 @@ import { SubmitButton } from "@/components/ui/submit-button"
 import { createCbv } from "@/db/functions"
 import { buMailboxEnum, priorityEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
 
-export const Route = createFileRoute("/new/")({
-  component: RouteComponent
-})
+export const Route = createFileRoute("/new/")({ component: RouteComponent })
 
-const validationSchema = z.object({
+const schema = z.object({
   region: z.enum(regionEnum, { message: "Region is required" }),
   productType: z.enum(productTypeEnum, { message: "Product type is required" }),
   buMailbox: z.enum(buMailboxEnum, { message: "BU mailbox is required" }),
@@ -23,14 +21,12 @@ const validationSchema = z.object({
   requestMode: z.enum(requestModeEnum, { message: "Request mode is required" }),
   cbvRequestedBy: z.string().min(1, "Requester name is required")
 })
-
-type ValidationForm = z.infer<typeof validationSchema>
+type FormValues = z.infer<typeof schema>
 
 function RouteComponent() {
   const navigate = useNavigate()
-
-  const form = useForm<ValidationForm>({
-    resolver: zodResolver(validationSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
     defaultValues: {
       region: undefined,
       productType: undefined,
@@ -40,9 +36,8 @@ function RouteComponent() {
       cbvRequestedBy: ""
     }
   })
-
   const mutation = useMutation({
-    mutationFn: (data: ValidationForm) => createCbv({ data }),
+    mutationFn: (data: FormValues) => createCbv({ data }),
     onSuccess: (row) => {
       toast.success(`${row?.id} created`)
       navigate({ to: "/cbv/$cbvId", params: { cbvId: row!.id } })
@@ -51,84 +46,63 @@ function RouteComponent() {
   })
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-10 flex h-14 items-center border-b bg-card/80 px-4 backdrop-blur supports-backdrop-filter:bg-card/60 md:px-8">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className="text-muted-foreground text-sm transition-colors hover:text-foreground"
-            onClick={() => navigate({ to: "/" })}
-          >
-            ← CBV Requests
-          </button>
-          <span className="text-muted-foreground/40">/</span>
-          <span className="font-medium text-sm">New CBV Request</span>
+    <div className="mx-auto max-w-xl space-y-6 p-6">
+      <div>
+        <h1 className="font-bold text-xl">New CBV — Validation</h1>
+        <p className="mt-1 text-muted-foreground text-sm">Provide core request details to create the CBV record.</p>
+      </div>
+      <form onSubmit={form.handleSubmit((d) => mutation.mutate(d))} className="space-y-5">
+        <FormSelect control={form.control} name="region" label="Region">
+          {" "}
+          {regionEnum.map((v) => (
+            <SelectItem key={v} value={v}>
+              {v}
+            </SelectItem>
+          ))}
+        </FormSelect>
+        <FormSelect control={form.control} name="productType" label="Product type">
+          {productTypeEnum.map((v) => (
+            <SelectItem key={v} value={v}>
+              {v}
+            </SelectItem>
+          ))}
+        </FormSelect>
+        <FormSelect control={form.control} name="buMailbox" label="BU mailbox">
+          {" "}
+          {buMailboxEnum.map((v) => (
+            <SelectItem key={v} value={v}>
+              {v}
+            </SelectItem>
+          ))}
+        </FormSelect>
+        <FormSelect control={form.control} name="priority" label="Priority">
+          {" "}
+          {priorityEnum.map((v) => (
+            <SelectItem key={v} value={v}>
+              {v}
+            </SelectItem>
+          ))}
+        </FormSelect>
+        <FormSelect control={form.control} name="requestMode" label="Request mode">
+          {requestModeEnum.map((v) => (
+            <SelectItem key={v} value={v}>
+              {v}
+            </SelectItem>
+          ))}
+        </FormSelect>
+        <FormInput
+          control={form.control}
+          name="cbvRequestedBy"
+          label="Requested by"
+          placeholder="Name or employee ID"
+        />
+        <div className="flex gap-3 pt-2">
+          <Button type="button" variant="outline" onClick={() => navigate({ to: "/" })}>
+            Cancel
+          </Button>
+          <SubmitButton isSubmitting={mutation.isPending}>Create and continue</SubmitButton>
         </div>
-      </header>
-
-      <main className="flex flex-1 flex-col overflow-y-auto p-4 md:p-8">
-        <div className="mx-auto w-full max-w-2xl space-y-6">
-          <div className="space-y-1">
-            <h1 className="font-semibold text-xl tracking-tight">Validation</h1>
-            <p className="text-muted-foreground text-sm">
-              Provide the core request details to create a new CBV record.
-            </p>
-          </div>
-
-          <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-5">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormSelect name="region" label="Region" control={form.control}>
-                {regionEnum.map((v) => (
-                  <SelectItem key={v} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-
-              <FormSelect name="productType" label="Product Type" control={form.control}>
-                {productTypeEnum.map((v) => (
-                  <SelectItem key={v} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-
-              <FormSelect name="buMailbox" label="BU Mailbox" control={form.control}>
-                {buMailboxEnum.map((v) => (
-                  <SelectItem key={v} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-
-              <FormSelect name="priority" label="Priority" control={form.control}>
-                {priorityEnum.map((v) => (
-                  <SelectItem key={v} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-
-              <FormSelect name="requestMode" label="Request Mode" control={form.control}>
-                {requestModeEnum.map((v) => (
-                  <SelectItem key={v} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-
-              <FormInput name="cbvRequestedBy" label="Requested By" control={form.control} placeholder="Enter name" />
-            </div>
-
-            <div className="flex justify-end gap-2 border-t pt-6">
-              <Button type="button" variant="ghost" onClick={() => navigate({ to: "/" })}>
-                Cancel
-              </Button>
-              <SubmitButton isSubmitting={mutation.isPending}>Create and continue</SubmitButton>
-            </div>
-          </form>
-        </div>
-      </main>
+      </form>
     </div>
   )
 }
