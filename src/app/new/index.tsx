@@ -16,11 +16,11 @@ export const Route = createFileRoute("/new/")({
 })
 
 const validationSchema = z.object({
-  region: z.enum(regionEnum, { required_error: "Region is required" }),
-  productType: z.enum(productTypeEnum, { required_error: "Product type is required" }),
-  buMailbox: z.enum(buMailboxEnum, { required_error: "BU mailbox is required" }),
-  priority: z.enum(priorityEnum, { required_error: "Priority is required" }),
-  requestMode: z.enum(requestModeEnum, { required_error: "Request mode is required" }),
+  region: z.enum(regionEnum, { message: "Region is required" }),
+  productType: z.enum(productTypeEnum, { message: "Product type is required" }),
+  buMailbox: z.enum(buMailboxEnum, { message: "BU mailbox is required" }),
+  priority: z.enum(priorityEnum, { message: "Priority is required" }),
+  requestMode: z.enum(requestModeEnum, { message: "Request mode is required" }),
   cbvRequestedBy: z.string().min(1, "Requester name is required")
 })
 
