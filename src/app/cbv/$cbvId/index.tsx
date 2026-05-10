@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { ArrowLeft, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import PageHeader from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { CbvFormRenderer } from "@/components/workflow/CbvFormRenderer"
 import { CbvStepper } from "@/components/workflow/CbvStepper"
 import { deleteCbv } from "@/db/functions"
 import { useCbvWorkflow } from "@/hooks/useCBVWorkflow"
@@ -28,7 +28,7 @@ function RouteComponent() {
 
   if (isLoading)
     return (
-      <div className="mx-auto max-w-3xl space-y-4 p-6">
+      <div className="w-full space-y-4 p-6">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-64 w-full" />
@@ -38,39 +38,40 @@ function RouteComponent() {
   if (!cbv) return <p className="p-6 text-destructive">CBV not found: {cbvId}</p>
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate({ to: "/" })}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="font-bold text-xl">{cbvId}</h1>
-            <p className="text-muted-foreground text-sm">
-              {cbv.productType} · {cbv.region} · {cbv.buMailbox}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">{cbv.priority}</Badge>
-          <Badge variant="secondary">{cbv.requestMode}</Badge>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive"
-            onClick={() => deleteMutation.mutate()}
-            disabled={deleteMutation.isPending}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+    <div className="w-full">
+      <PageHeader label={cbvId} description="CBV" showBackButton onBackClick={() => navigate({ to: "/" })}>
+        <Badge variant="secondary" className="px-3 py-1 font-medium">
+          Current stage: {cbv.currentStage}
+        </Badge>
+      </PageHeader>
 
-      <Card>
-        <CardContent className="pt-6">
-          <CbvStepper cbv={cbv} currentFormKey={currentFormKey} onAdvance={onAdvance} isAdvancing={isAdvancing} />
-        </CardContent>
-      </Card>
+      <main className="w-full space-y-6 p-6">
+        <section className="rounded-xl border bg-background p-4 shadow-sm sm:p-5">
+          <CbvStepper cbv={cbv} />
+        </section>
+
+        <Card className="w-full shadow-sm">
+          <CardHeader className="border-b pb-4">
+            <CardTitle>{cbv.currentStage}</CardTitle>
+            <CardDescription>Complete the current stage.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {currentFormKey ? (
+              <CbvFormRenderer
+                formKey={currentFormKey}
+                cbv={cbv}
+                onAdvance={onAdvance}
+                onCancel={() => navigate({ to: "/" })}
+                onDelete={() => deleteMutation.mutate()}
+                isAdvancing={isAdvancing}
+                isDeleting={deleteMutation.isPending}
+              />
+            ) : (
+              <p className="text-muted-foreground text-sm">No form configured.</p>
+            )}
+          </CardContent>
+        </Card>
+      </main>
     </div>
   )
 }

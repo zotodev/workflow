@@ -1,32 +1,26 @@
 import { Check, LoaderCircle } from "lucide-react"
 import {
   Stepper,
-  StepperContent,
   StepperIndicator,
   StepperItem,
   StepperNav,
-  StepperPanel,
   StepperSeparator,
   StepperTitle,
   StepperTrigger
 } from "@/components/ui/stepper"
-import { CbvFormRenderer } from "@/components/workflow/CbvFormRenderer"
 import { CBV_STAGES, stageIndex } from "@/config/workflowConfig"
-import type { CbvRecord, CbvStage } from "@/types/cbv"
+import type { CbvRecord } from "@/types/cbv"
 
 interface CbvStepperProps {
   cbv: CbvRecord
-  currentFormKey: string | null
-  onAdvance: (nextStage: CbvStage, payload?: Partial<Omit<CbvRecord, "id" | "currentStage">>) => Promise<void>
-  isAdvancing: boolean
 }
 
-export function CbvStepper({ cbv, currentFormKey, onAdvance, isAdvancing }: CbvStepperProps) {
+export function CbvStepper({ cbv }: CbvStepperProps) {
   const currentStep = stageIndex(cbv.currentStage) + 1 // 1-based
 
   return (
     <Stepper
-      className="w-full space-y-8"
+      className="w-full"
       defaultValue={currentStep}
       value={currentStep}
       indicators={{
@@ -34,10 +28,9 @@ export function CbvStepper({ cbv, currentFormKey, onAdvance, isAdvancing }: CbvS
         loading: <LoaderCircle className="size-3.5 animate-spin" />
       }}
     >
-      {/* Horizontal nav — matches your pattern exactly */}
-      <StepperNav>
+      <StepperNav className="overflow-x-auto pb-2">
         {CBV_STAGES.map((stage, index) => (
-          <StepperItem key={stage.key} step={index + 1} className="relative flex-1 items-start">
+          <StepperItem key={stage.key} step={index + 1} className="relative min-w-28 flex-1 items-start">
             <StepperTrigger className="flex flex-col gap-2.5" disabled>
               <StepperIndicator>{index + 1}</StepperIndicator>
               <StepperTitle>{stage.label}</StepperTitle>
@@ -49,19 +42,6 @@ export function CbvStepper({ cbv, currentFormKey, onAdvance, isAdvancing }: CbvS
           </StepperItem>
         ))}
       </StepperNav>
-
-      {/* Stage form panel — only the active step's content shows */}
-      <StepperPanel>
-        {CBV_STAGES.map((stage, index) => (
-          <StepperContent key={stage.key} value={index + 1}>
-            {currentFormKey ? (
-              <CbvFormRenderer formKey={currentFormKey} cbv={cbv} onAdvance={onAdvance} isAdvancing={isAdvancing} />
-            ) : (
-              <p className="text-muted-foreground text-sm">No form configured.</p>
-            )}
-          </StepperContent>
-        ))}
-      </StepperPanel>
     </Stepper>
   )
 }

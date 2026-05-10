@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { FormTextarea } from "@/components/form"
-import { SubmitButton } from "@/components/ui/submit-button"
+import { CbvFormActions } from "@/components/workflow/CbvFormActions"
 import type { CbvStageFormProps } from "@/types/cbv"
 
 const schema = z.object({
@@ -10,7 +10,7 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
-export function VerificationForm({ cbv, onAdvance }: CbvStageFormProps) {
+export function VerificationForm({ cbv, onAdvance, onCancel, onDelete, isAdvancing, isDeleting }: CbvStageFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { reviewerComments: cbv.reviewerComments ?? "" }
@@ -20,11 +20,16 @@ export function VerificationForm({ cbv, onAdvance }: CbvStageFormProps) {
     await onAdvance("Authorization", { reviewerComments: data.reviewerComments })
   })
 
+  const save = async () => {
+    await onAdvance("Verification", { reviewerComments: form.getValues().reviewerComments })
+  }
+
+  const back = async () => {
+    await onAdvance("Initiation", { reviewerComments: form.getValues().reviewerComments })
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-5">
-      <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-        Assigned reviewer: <span className="font-semibold text-foreground">{cbv.reviewer ?? "—"}</span>
-      </div>
       <FormTextarea
         control={form.control}
         name="reviewerComments"
@@ -32,7 +37,14 @@ export function VerificationForm({ cbv, onAdvance }: CbvStageFormProps) {
         placeholder="Document what was verified and the outcome…"
         rows={4}
       />
-      <SubmitButton isSubmitting={form.formState.isSubmitting}>Verify → Authorization</SubmitButton>
+      <CbvFormActions
+        isBusy={form.formState.isSubmitting || isAdvancing}
+        isDeleting={isDeleting}
+        onBack={back}
+        onSave={save}
+        onCancel={onCancel}
+        onDelete={onDelete}
+      />
     </form>
   )
 }

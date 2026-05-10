@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils"
 interface PageHeaderProps {
   /** The main title of the page */
   label: string
-  /** Optional description text displayed below the title */
-  description?: string
+  /** Optional description content displayed below the title */
+  description?: React.ReactNode
   /** Optional content to be displayed on the right side (typically action buttons) */
   children?: React.ReactNode
   /** Optional additional CSS classes for the content wrapper */

@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { FormCheckbox, FormInput, FormTextarea } from "@/components/form"
-import { SubmitButton } from "@/components/ui/submit-button"
+import { CbvFormActions } from "@/components/workflow/CbvFormActions"
 import type { CbvStageFormProps } from "@/types/cbv"
 
 const schema = z.object({
@@ -14,7 +14,7 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
-export function AuthorizationForm({ cbv, onAdvance }: CbvStageFormProps) {
+export function AuthorizationForm({ cbv, onAdvance, onCancel, onDelete, isAdvancing, isDeleting }: CbvStageFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -32,14 +32,25 @@ export function AuthorizationForm({ cbv, onAdvance }: CbvStageFormProps) {
     })
   })
 
+  const payload = () => {
+    const data = form.getValues()
+    return {
+      authorizer: data.authorizer,
+      authorizerComments: data.authorizerComments,
+      authorizerSignoff: data.authorizerSignoff
+    }
+  }
+
+  const save = async () => {
+    await onAdvance("Authorization", payload())
+  }
+
+  const back = async () => {
+    await onAdvance("Verification", payload())
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-5">
-      <div className="space-y-1 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-        <p>
-          Reviewer: <span className="font-semibold text-foreground">{cbv.reviewer ?? "—"}</span>
-        </p>
-        <p className="text-muted-foreground text-xs">{cbv.reviewerComments ?? "No reviewer comments."}</p>
-      </div>
       <FormInput
         control={form.control}
         name="authorizer"
@@ -58,7 +69,14 @@ export function AuthorizationForm({ cbv, onAdvance }: CbvStageFormProps) {
         name="authorizerSignoff"
         label="I confirm I have reviewed this CBV and provide formal sign-off"
       />
-      <SubmitButton isSubmitting={form.formState.isSubmitting}>Authorize → Submit</SubmitButton>
+      <CbvFormActions
+        isBusy={form.formState.isSubmitting || isAdvancing}
+        isDeleting={isDeleting}
+        onBack={back}
+        onSave={save}
+        onCancel={onCancel}
+        onDelete={onDelete}
+      />
     </form>
   )
 }

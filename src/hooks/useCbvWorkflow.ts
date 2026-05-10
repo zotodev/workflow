@@ -18,7 +18,7 @@ export function useCbvWorkflow(cbvId: string) {
     mutationFn: (payload: Parameters<typeof updateCbvStage>[0]["data"]) => updateCbvStage({ data: payload }),
     onSuccess: (updated) => {
       qc.setQueryData(["cbv", cbvId], updated)
-      toast.success(`Advanced to ${updated?.currentStage}`)
+      toast.success(`Saved ${updated?.currentStage}`)
     },
     onError: () => toast.error("Failed to advance stage")
   })

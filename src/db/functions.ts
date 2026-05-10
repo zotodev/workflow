@@ -2,15 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 import { desc, eq } from "drizzle-orm"
 import { z } from "zod"
 import { db } from "@/db/index"
-import {
-  buMailboxEnum,
-  cbv,
-  cbvStageEnum,
-  priorityEnum,
-  productTypeEnum,
-  regionEnum,
-  requestModeEnum
-} from "@/db/schema"
+import { buMailboxEnum, cbv, cbvStageEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
 import { nextCbvId } from "@/lib/cbv-id"
 
 export const getCbvList = createServerFn().handler(async () => {
@@ -31,29 +23,20 @@ export const deleteCbv = createServerFn({ method: "POST" })
     return { id: data.id }
   })
 
-const createCbvSchema = z.object({
-  region: z.enum(regionEnum),
-  productType: z.enum(productTypeEnum),
-  buMailbox: z.enum(buMailboxEnum),
-  priority: z.enum(priorityEnum),
-  requestMode: z.enum(requestModeEnum),
-  cbvRequestedBy: z.string().min(1)
-})
-
 export const createCbv = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => createCbvSchema.parse(input))
-  .handler(async ({ data }) => {
+  .inputValidator((input: unknown) => z.object({}).optional().parse(input))
+  .handler(async () => {
     const id = await nextCbvId()
     const [row] = await db
       .insert(cbv)
       .values({
         id,
-        region: data.region,
-        productType: data.productType,
-        buMailbox: data.buMailbox,
-        priority: data.priority,
-        requestMode: data.requestMode,
-        cbvRequestedBy: data.cbvRequestedBy,
+        region: regionEnum[0],
+        productType: productTypeEnum[0],
+        buMailbox: buMailboxEnum[0],
+        priority: "MEDIUM",
+        requestMode: requestModeEnum[0],
+        cbvRequestedBy: "Unassigned",
         currentStage: "Initiation"
       })
       .returning()
