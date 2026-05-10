@@ -1,10 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { FormInput, FormSelect } from "@/components/form"
 import { CbvFormActions } from "@/components/workflow/CbvFormActions"
 import { buMailboxEnum, priorityEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
+import { getClientSsiList } from "@/db/functions"
 import { SelectItem } from "@/components/ui/select"
+import { getPartyPrefix } from "@/lib/mock-accounts"
+import { AccountPicker } from "./-components/AccountPicker"
+import { ClientSsiTable } from "./-components/ClientSsiTable"
 import type { CbvStageFormProps } from "@/types/cbv"
 
 const schema = z.object({
@@ -30,7 +35,25 @@ export function ValidationForm({ cbv, onAdvance, onCancel, onDelete, isAdvancing
     }
   })
 
+  const { data: ssiRecords = [] } = useQuery({
+    queryKey: ["clientSsi", cbv.id],
+    queryFn: () => getClientSsiList({ data: { cbvId: cbv.id } })
+  })
+
   const onSubmit = form.handleSubmit(async (data) => {
+    // Validate at least one SSI record exists
+    if (ssiRecords.length === 0) {
+      form.setError("root", { message: "At least one client account must be added before advancing." })
+      return
+    }
+
+    // Validate all SSI records share the same party prefix
+    const prefixes = new Set(ssiRecords.map((r) => getPartyPrefix(r.accountNumber)))
+    if (prefixes.size > 1) {
+      form.setError("root", { message: "All accounts must belong to the same party. Remove mismatched accounts before advancing." })
+      return
+    }
+
     await onAdvance("Initiation", data)
   })
 
@@ -71,6 +94,26 @@ export function ValidationForm({ cbv, onAdvance, onCancel, onDelete, isAdvancing
         label="Requested by"
         placeholder="Name or employee ID"
       />
+
+      {/* ─── Client Account Selection ──────────────────────────────────── */}
+      <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
+        <div>
+          <h3 className="font-medium text-sm">Client Accounts</h3>
+          <p className="text-muted-foreground text-xs">
+            Select client accounts from the list. All accounts must belong to the same party.
+          </p>
+        </div>
+        <AccountPicker cbvId={cbv.id} />
+        <ClientSsiTable cbvId={cbv.id} records={ssiRecords} removable />
+      </div>
+
+      {/* ─── Form-level error ─────────────────────────────────────────── */}
+      {form.formState.errors.root && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">
+          {form.formState.errors.root.message}
+        </div>
+      )}
+
       <CbvFormActions
         canBack={false}
         isBusy={form.formState.isSubmitting || isAdvancing}
