@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from "./app/__root"
 import { Route as IndexRouteImport } from "./app/index"
 import { Route as WorkflowIndexRouteImport } from "./app/workflow/index"
+import { Route as NewIndexRouteImport } from "./app/new/index"
+import { Route as CbvCbvIdIndexRouteImport } from "./app/cbv/$cbvId/index"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
@@ -22,31 +24,49 @@ const WorkflowIndexRoute = WorkflowIndexRouteImport.update({
   path: "/workflow/",
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewIndexRoute = NewIndexRouteImport.update({
+  id: "/new/",
+  path: "/new/",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CbvCbvIdIndexRoute = CbvCbvIdIndexRouteImport.update({
+  id: "/cbv/$cbvId/",
+  path: "/cbv/$cbvId/",
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/new/": typeof NewIndexRoute
   "/workflow/": typeof WorkflowIndexRoute
+  "/cbv/$cbvId/": typeof CbvCbvIdIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/new": typeof NewIndexRoute
   "/workflow": typeof WorkflowIndexRoute
+  "/cbv/$cbvId": typeof CbvCbvIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/new/": typeof NewIndexRoute
   "/workflow/": typeof WorkflowIndexRoute
+  "/cbv/$cbvId/": typeof CbvCbvIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/workflow/"
+  fullPaths: "/" | "/new/" | "/workflow/" | "/cbv/$cbvId/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/workflow"
-  id: "__root__" | "/" | "/workflow/"
+  to: "/" | "/new" | "/workflow" | "/cbv/$cbvId"
+  id: "__root__" | "/" | "/new/" | "/workflow/" | "/cbv/$cbvId/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NewIndexRoute: typeof NewIndexRoute
   WorkflowIndexRoute: typeof WorkflowIndexRoute
+  CbvCbvIdIndexRoute: typeof CbvCbvIdIndexRoute
 }
 
 declare module "@tanstack/react-router" {
@@ -65,12 +85,28 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof WorkflowIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/new/": {
+      id: "/new/"
+      path: "/new"
+      fullPath: "/new/"
+      preLoaderRoute: typeof NewIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/cbv/$cbvId/": {
+      id: "/cbv/$cbvId/"
+      path: "/cbv/$cbvId"
+      fullPath: "/cbv/$cbvId/"
+      preLoaderRoute: typeof CbvCbvIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NewIndexRoute: NewIndexRoute,
   WorkflowIndexRoute: WorkflowIndexRoute,
+  CbvCbvIdIndexRoute: CbvCbvIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
