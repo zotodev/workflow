@@ -27,9 +27,9 @@ export const Route = createRootRouteWithContext<{
         content: "width=device-width, initial-scale=1"
       },
       ...seo({
-        title: "Zoto Finance",
+        title: "Zoto Workflow",
         description: "A modern finance management application",
-        image: "/logo.svg"
+        image: "/favicon.ico"
       })
     ],
     links: [

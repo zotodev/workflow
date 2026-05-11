@@ -16,13 +16,15 @@ interface CbvStepperProps {
 }
 
 export function CbvStepper({ cbv }: CbvStepperProps) {
-  const currentStep = stageIndex(cbv.currentStage) + 1 // 1-based
+  const currentStep = stageIndex(cbv.currentStage) + 1
+  const isCompleted = cbv.status === "resolved-completed"
+  const activeStep = isCompleted ? CBV_STAGES.length + 1 : currentStep
 
   return (
     <Stepper
       className="w-full"
-      defaultValue={currentStep}
-      value={currentStep}
+      defaultValue={activeStep}
+      value={activeStep}
       indicators={{
         completed: <Check className="size-3.5" strokeWidth={3} />,
         loading: <LoaderCircle className="size-3.5 animate-spin" />

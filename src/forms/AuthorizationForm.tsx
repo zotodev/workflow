@@ -72,6 +72,7 @@ export function AuthorizationForm({ cbv, onAdvance, onCancel, onDelete, isAdvanc
       <CbvFormActions
         isBusy={form.formState.isSubmitting || isAdvancing}
         isDeleting={isDeleting}
+        isResolved={cbv.status === "resolved-completed"}
         onBack={back}
         onSave={save}
         onCancel={onCancel}

@@ -1,13 +1,15 @@
 import { CbvFormActions } from "@/components/workflow/CbvFormActions"
 import type { CbvStageFormProps } from "@/types/cbv"
 
-export function SubmitSummary({ onAdvance, onCancel, onDelete, isAdvancing, isDeleting }: CbvStageFormProps) {
+export function SubmitSummary({ cbv, onAdvance, onCancel, onDelete, isAdvancing, isDeleting }: CbvStageFormProps) {
+  const isResolved = cbv.status === "resolved-completed"
+
   const back = async () => {
     await onAdvance("Authorization")
   }
 
   const submit = async () => {
-    await onAdvance("Submit")
+    await onAdvance("Submit", { status: "resolved-completed" })
   }
 
   const save = async () => {
@@ -21,6 +23,7 @@ export function SubmitSummary({ onAdvance, onCancel, onDelete, isAdvancing, isDe
         nextLabel="Submit"
         isBusy={isAdvancing}
         isDeleting={isDeleting}
+        isResolved={isResolved}
         onBack={back}
         onSave={save}
         onCancel={onCancel}

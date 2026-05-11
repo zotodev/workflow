@@ -87,6 +87,7 @@ export function InitiationForm({ cbv, onAdvance, onCancel, onDelete, isAdvancing
           canBack
           isBusy={form.formState.isSubmitting || isAdvancing}
           isDeleting={isDeleting}
+          isResolved={cbv.status === "resolved-completed"}
           onBack={back}
           onSave={save}
           onCancel={onCancel}

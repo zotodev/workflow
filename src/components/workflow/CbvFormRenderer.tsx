@@ -1,10 +1,10 @@
 import { cbvFormRegistry } from "@/registry/cbvFormRegistry"
-import type { CbvRecord, CbvStage } from "@/types/cbv"
+import type { CbvRecord, CbvStage, CbvStatus } from "@/types/cbv"
 
 interface Props {
   formKey: string
   cbv: CbvRecord
-  onAdvance: (nextStage: CbvStage, payload?: Partial<Omit<CbvRecord, "id" | "currentStage">>) => Promise<void>
+  onAdvance: (nextStage: CbvStage, payload?: Partial<Omit<CbvRecord, "id" | "currentStage" | "status">> & { status?: CbvStatus }) => Promise<void>
   onCancel: () => void
   onDelete: () => void
   isAdvancing: boolean

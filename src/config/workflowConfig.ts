@@ -1,4 +1,4 @@
-import type { CbvStage } from "@/types/cbv"
+import type { CbvStage, CbvStatus } from "@/types/cbv"
 
 export interface StageConfig {
   step: number
@@ -14,6 +14,18 @@ export const CBV_STAGES: StageConfig[] = [
   { step: 4, key: "Authorization", label: "Authorization" },
   { step: 5, key: "Submit", label: "Submit", terminal: true }
 ]
+
+export const stageToStatus: Record<CbvStage, CbvStatus> = {
+  Validation: "pending-validation",
+  Initiation: "pending-initiation",
+  Verification: "pending-verification",
+  Authorization: "pending-authorization",
+  Submit: "pending-submit"
+}
+
+export function getStatusForStage(stage: CbvStage): CbvStatus {
+  return stageToStatus[stage]
+}
 
 export const stageFormMap: Record<CbvStage, string> = {
   Validation: "ValidationForm",

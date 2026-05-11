@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
 import { Loader2, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { createCbv, deleteCbv, getCbvList } from "@/db/functions"
+import { ConfirmDeleteDialog } from "@/components/workflow/ConfirmDeleteDialog"
 
 export const Route = createFileRoute("/")({
   component: RouteComponent
@@ -24,9 +26,19 @@ const stageColors: Record<string, string> = {
   Submit: "bg-green-100 text-green-700"
 }
 
+const statusColors: Record<string, string> = {
+  "pending-validation": "bg-slate-100 text-slate-700",
+  "pending-initiation": "bg-violet-100 text-violet-700",
+  "pending-verification": "bg-amber-100 text-amber-700",
+  "pending-authorization": "bg-sky-100 text-sky-700",
+  "pending-submit": "bg-green-100 text-green-700",
+  "resolved-completed": "bg-emerald-100 text-emerald-700"
+}
+
 function RouteComponent() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["cbv"],
@@ -37,7 +49,8 @@ function RouteComponent() {
     mutationFn: (id: string) => deleteCbv({ data: { id } }),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["cbv"] })
-      toast.success(`${id} deleted`)
+      toast.success(`${id.toUpperCase()} deleted`)
+      setDeleteTargetId(null)
     },
     onError: () => toast.error("Failed to delete CBV")
   })
@@ -101,6 +114,7 @@ function RouteComponent() {
               <tr className="border-b bg-muted/50">
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">ID</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Stage</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Region</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Product</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">BU Mailbox</th>
@@ -119,12 +133,19 @@ function RouteComponent() {
                   className="cursor-pointer transition-colors hover:bg-muted/30"
                   onClick={() => navigate({ to: "/cbv/$cbvId", params: { cbvId: item.id } })}
                 >
-                  <td className="px-4 py-3 font-medium font-mono">{item.id}</td>
+                  <td className="px-4 py-3 font-medium font-mono uppercase">{item.id}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${stageColors[item.currentStage] ?? "bg-muted text-muted-foreground"}`}
                     >
                       {item.currentStage}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs uppercase ${statusColors[item.status] ?? "bg-muted text-muted-foreground"}`}
+                    >
+                      {item.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{item.region}</td>
@@ -155,7 +176,7 @@ function RouteComponent() {
                       size="icon"
                       className="size-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       disabled={deleteMutation.isPending && deleteMutation.variables === item.id}
-                      onClick={() => deleteMutation.mutate(item.id)}
+                      onClick={() => setDeleteTargetId(item.id)}
                       aria-label={`Delete ${item.id}`}
                     >
                       {deleteMutation.isPending && deleteMutation.variables === item.id ? (
@@ -171,6 +192,12 @@ function RouteComponent() {
           </table>
         </div>
       )}
+
+      <ConfirmDeleteDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}
+        onConfirm={() => { if (deleteTargetId) deleteMutation.mutate(deleteTargetId) }}
+      />
     </div>
   )
 }

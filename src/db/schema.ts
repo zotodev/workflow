@@ -6,6 +6,14 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export const cbvStageEnum = ["Validation", "Initiation", "Verification", "Authorization", "Submit"] as const
+export const cbvStatusEnum = [
+  "pending-validation",
+  "pending-initiation",
+  "pending-verification",
+  "pending-authorization",
+  "pending-submit",
+  "resolved-completed"
+] as const
 
 export const regionEnum = ["APAC", "EMEA", "AMER", "LATAM", "MEA"] as const
 export const productTypeEnum = ["FX", "Rates", "Equities", "Credit", "Commodities"] as const
@@ -31,6 +39,7 @@ export const cbv = sqliteTable("cbv", {
   authorizerSignoff: integer("authorizer_signoff", { mode: "boolean" }).default(false),
 
   currentStage: text("current_stage", { enum: cbvStageEnum }).notNull().default("Validation"),
+  status: text("status", { enum: cbvStatusEnum }).notNull().default("pending-validation"),
 
   cbvRequestedBy: text("cbv_requested_by").notNull(),
   cbvDateTime: text("cbv_date_time").default(sql`(CURRENT_TIMESTAMP)`)

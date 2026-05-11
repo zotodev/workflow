@@ -2,8 +2,9 @@ import { createServerFn } from "@tanstack/react-start"
 import { desc, eq } from "drizzle-orm"
 import { z } from "zod"
 import { db } from "@/db/index"
-import { buMailboxEnum, cbv, cbvStageEnum, clientSsi, priorityEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
+import { buMailboxEnum, cbv, cbvStageEnum, cbvStatusEnum, clientSsi, priorityEnum, productTypeEnum, regionEnum, requestModeEnum } from "@/db/schema"
 import { nextCbvId } from "@/lib/cbv-id"
+import { getStatusForStage } from "@/config/workflowConfig"
 
 export const getCbvList = createServerFn().handler(async () => {
   return await db.select().from(cbv).orderBy(desc(cbv.cbvDateTime))
@@ -36,7 +37,8 @@ export const createCbv = createServerFn({ method: "POST" })
         priority: "MEDIUM",
         requestMode: requestModeEnum[0],
         cbvRequestedBy: "Unassigned",
-        currentStage: "Validation"
+        currentStage: "Validation",
+        status: "pending-validation"
       })
       .returning()
     return row
@@ -45,6 +47,7 @@ export const createCbv = createServerFn({ method: "POST" })
 const updateCbvStageSchema = z.object({
   id: z.string(),
   nextStage: z.enum(cbvStageEnum),
+  status: z.enum(cbvStatusEnum).optional(),
   region: z.enum(regionEnum).optional(),
   productType: z.enum(productTypeEnum).optional(),
   buMailbox: z.enum(buMailboxEnum).optional(),
@@ -61,8 +64,9 @@ const updateCbvStageSchema = z.object({
 export const updateCbvStage = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => updateCbvStageSchema.parse(input))
   .handler(async ({ data }) => {
-    const { id, nextStage, ...fields } = data
-    const updateData: Record<string, unknown> = { currentStage: nextStage }
+    const { id, nextStage, status, ...fields } = data
+    const computedStatus = status ?? getStatusForStage(nextStage)
+    const updateData: Record<string, unknown> = { currentStage: nextStage, status: computedStatus }
     const keys = [
       "region", "productType", "buMailbox", "priority", "requestMode", "cbvRequestedBy",
       "reviewer", "reviewerComments", "authorizer", "authorizerComments", "authorizerSignoff"

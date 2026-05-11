@@ -118,6 +118,7 @@ export function ValidationForm({ cbv, onAdvance, onCancel, onDelete, isAdvancing
         canBack={false}
         isBusy={form.formState.isSubmitting || isAdvancing}
         isDeleting={isDeleting}
+        isResolved={cbv.status === "resolved-completed"}
         onSave={save}
         onCancel={onCancel}
         onDelete={onDelete}

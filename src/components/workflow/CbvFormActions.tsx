@@ -6,6 +6,7 @@ interface CbvFormActionsProps {
   canBack?: boolean
   isBusy?: boolean
   isDeleting?: boolean
+  isResolved?: boolean
   onBack?: () => void
   onSave?: () => void
   onCancel: () => void
@@ -17,11 +18,30 @@ export function CbvFormActions({
   canBack = true,
   isBusy = false,
   isDeleting = false,
+  isResolved = false,
   onBack,
   onSave,
   onCancel,
   onDelete
 }: CbvFormActionsProps) {
+  if (isResolved) {
+    return (
+      <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-destructive hover:text-destructive"
+            onClick={onDelete}
+            disabled={isBusy || isDeleting}
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex gap-2">
